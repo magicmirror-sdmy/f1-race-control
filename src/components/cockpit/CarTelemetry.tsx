@@ -1,0 +1,195 @@
+import { useState } from "react";
+
+interface CarTelemetryProps {
+  steeringAngle: number;
+  throttle: boolean;
+  brake: boolean;
+  gear: string;
+  onLaunch: () => void;
+  onDonut: () => void;
+}
+
+export const CarTelemetry = ({
+  steeringAngle,
+  throttle,
+  brake,
+  gear,
+  onLaunch,
+  onDonut,
+}: CarTelemetryProps) => {
+  const [launchActive, setLaunchActive] = useState(false);
+  const [donutActive, setDonutActive] = useState(false);
+
+  const handleLaunch = () => {
+    setLaunchActive(true);
+    onLaunch();
+    setTimeout(() => setLaunchActive(false), 500);
+  };
+
+  const handleDonut = () => {
+    setDonutActive(true);
+    onDonut();
+    setTimeout(() => setDonutActive(false), 500);
+  };
+
+  // Calculate front wheel angles for display
+  const frontWheelAngle = steeringAngle * 0.4;
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full p-2">
+      <div className="racing-text text-xs text-muted-foreground mb-2">TELEMETRY</div>
+      
+      <div className="relative w-32 sm:w-40">
+        {/* Car Body - Top Down View */}
+        <svg viewBox="0 0 100 160" className="w-full h-auto">
+          {/* Car Shadow */}
+          <ellipse cx="50" cy="85" rx="25" ry="60" fill="hsl(var(--primary) / 0.1)" />
+          
+          {/* Front Wing */}
+          <rect x="15" y="10" width="70" height="8" rx="2" fill="hsl(var(--card))" stroke="hsl(var(--primary) / 0.5)" strokeWidth="0.5" />
+          
+          {/* Front Left Tire */}
+          <g transform={`rotate(${frontWheelAngle}, 22, 28)`}>
+            <rect
+              x="10"
+              y="20"
+              width="12"
+              height="20"
+              rx="2"
+              className={`transition-colors ${throttle ? 'fill-muted' : 'fill-card'}`}
+              stroke="hsl(var(--border))"
+              strokeWidth="1"
+            />
+          </g>
+          
+          {/* Front Right Tire */}
+          <g transform={`rotate(${frontWheelAngle}, 78, 28)`}>
+            <rect
+              x="78"
+              y="20"
+              width="12"
+              height="20"
+              rx="2"
+              className={`transition-colors ${throttle ? 'fill-muted' : 'fill-card'}`}
+              stroke="hsl(var(--border))"
+              strokeWidth="1"
+            />
+          </g>
+          
+          {/* Nose Cone */}
+          <path d="M40,15 L50,5 L60,15 L55,35 L45,35 Z" fill="hsl(var(--secondary))" stroke="hsl(var(--primary) / 0.3)" strokeWidth="0.5" />
+          
+          {/* Cockpit / Main Body */}
+          <path 
+            d="M30,35 L70,35 L75,70 L78,120 L75,135 L25,135 L22,120 L25,70 Z" 
+            fill="hsl(var(--card))"
+            stroke="hsl(var(--primary) / 0.3)"
+            strokeWidth="1"
+          />
+          
+          {/* Halo */}
+          <ellipse cx="50" cy="55" rx="15" ry="10" fill="none" stroke="hsl(var(--muted-foreground))" strokeWidth="3" />
+          <circle cx="50" cy="60" r="5" fill="hsl(var(--secondary))" />
+          
+          {/* Sidepods */}
+          <rect x="20" y="50" width="10" height="40" rx="2" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="0.5" />
+          <rect x="70" y="50" width="10" height="40" rx="2" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="0.5" />
+          
+          {/* Engine Cover */}
+          <rect x="35" y="75" width="30" height="35" rx="3" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="0.5" />
+          <line x1="50" y1="80" x2="50" y2="105" stroke="hsl(var(--primary) / 0.5)" strokeWidth="1" />
+          
+          {/* Rear Left Tire - with heat glow */}
+          <rect
+            x="8"
+            y="115"
+            width="14"
+            height="28"
+            rx="2"
+            className={`transition-all ${throttle || brake ? 'fill-destructive/80' : 'fill-card'}`}
+            stroke={throttle || brake ? "hsl(var(--destructive))" : "hsl(var(--border))"}
+            strokeWidth="1"
+            style={{
+              filter: throttle || brake ? 'drop-shadow(0 0 4px hsl(var(--destructive)))' : 'none'
+            }}
+          />
+          
+          {/* Rear Right Tire - with heat glow */}
+          <rect
+            x="78"
+            y="115"
+            width="14"
+            height="28"
+            rx="2"
+            className={`transition-all ${throttle || brake ? 'fill-destructive/80' : 'fill-card'}`}
+            stroke={throttle || brake ? "hsl(var(--destructive))" : "hsl(var(--border))"}
+            strokeWidth="1"
+            style={{
+              filter: throttle || brake ? 'drop-shadow(0 0 4px hsl(var(--destructive)))' : 'none'
+            }}
+          />
+          
+          {/* Rear Wing */}
+          <rect x="12" y="148" width="76" height="6" rx="1" fill="hsl(var(--card))" stroke="hsl(var(--primary) / 0.5)" strokeWidth="0.5" />
+          <rect x="20" y="145" width="60" height="3" rx="1" fill="hsl(var(--muted))" />
+          
+          {/* DRS Indicator */}
+          <circle cx="50" cy="150" r="2" className={`transition-colors ${gear === 'S' ? 'fill-primary' : 'fill-muted'}`} />
+          
+          {/* Petronas Teal Accents */}
+          <line x1="30" y1="45" x2="30" y2="130" stroke="hsl(var(--primary))" strokeWidth="1" opacity="0.6" />
+          <line x1="70" y1="45" x2="70" y2="130" stroke="hsl(var(--primary))" strokeWidth="1" opacity="0.6" />
+        </svg>
+        
+        {/* Action Buttons */}
+        <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+          <button
+            onClick={handleLaunch}
+            className={`
+              w-10 h-10 rounded border text-[10px] font-bold racing-text
+              transition-all duration-100 touch-feedback
+              ${launchActive 
+                ? 'bg-primary border-primary text-primary-foreground glow-teal' 
+                : 'bg-card border-primary/50 text-primary hover:bg-primary/20'
+              }
+            `}
+          >
+            LAUNCH
+          </button>
+        </div>
+        
+        <div className="absolute -right-12 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+          <button
+            onClick={handleDonut}
+            className={`
+              w-10 h-10 rounded border text-[10px] font-bold racing-text
+              transition-all duration-100 touch-feedback
+              ${donutActive 
+                ? 'bg-accent border-accent text-accent-foreground glow-accent' 
+                : 'bg-card border-accent/50 text-accent hover:bg-accent/20'
+              }
+            `}
+          >
+            DONUT
+          </button>
+        </div>
+      </div>
+      
+      {/* Status Indicators */}
+      <div className="flex gap-4 mt-3 text-[10px] racing-text">
+        <div className={`flex items-center gap-1 ${throttle ? 'text-primary text-glow-teal' : 'text-muted-foreground'}`}>
+          <div className={`w-2 h-2 rounded-full ${throttle ? 'bg-primary' : 'bg-muted'}`} />
+          PWR
+        </div>
+        <div className={`flex items-center gap-1 ${brake ? 'text-destructive text-glow-red' : 'text-muted-foreground'}`}>
+          <div className={`w-2 h-2 rounded-full ${brake ? 'bg-destructive' : 'bg-muted'}`} />
+          BRK
+        </div>
+        <div className="flex items-center gap-1 text-muted-foreground">
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          CONN
+        </div>
+      </div>
+    </div>
+  );
+};
